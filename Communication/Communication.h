@@ -7,8 +7,10 @@
 class Communication
 {
   public:
+	int commandIndex = 0;
     Communication();
-    String readInput();
+    void readInput();
+	String getNextCommand();	
 };
 
 #endif
