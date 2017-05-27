@@ -1,12 +1,36 @@
 #include "Arduino.h"
 #include "Communication.h"
 
+const int maxArraySize = 10;
+String commandArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
+
 Communication::Communication()
 {
-	
 }
 
-String Communication::readInput()
+String Communication::getNextCommand()
+{
+	String commandToReturn = "";
+		
+	if(commandIndex > 0)
+	{
+		commandToReturn = commandArray[0];
+		
+		for(int i = 1; i < maxArraySize; i++)
+		{
+			commandArray[i - 1] = commandArray[i];
+		}
+		
+		commandArray[commandIndex] = "";
+	}
+	
+	commandIndex--;
+	
+	
+	return commandToReturn;
+}
+
+void Communication::readInput()
 {
 	const byte numChars = 32;	
 	char receivedChars[numChars];
@@ -40,6 +64,13 @@ String Communication::readInput()
                 index = 0;
                 newData = true;
 				inputString = receivedChars;
+								
+				if(commandIndex < maxArraySize - 1)
+				{
+					commandArray[commandIndex] = inputString;
+					
+					commandIndex++;					
+				}				
             }
         }
         else if (rc == startMarker) 
@@ -48,6 +79,5 @@ String Communication::readInput()
         }
     }
 	
-	return inputString;
 }
 
