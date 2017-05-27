@@ -61,7 +61,6 @@ void setup() {
   moveXMotor(110,0);
   delay(3000);
     
-  while(true){
     while(!yDone||!xDone){
       moveYCoor(1);
       moveXCoor(1);
@@ -74,53 +73,22 @@ void setup() {
     }
     extractPackage();
     resetVars();
+    delay(2000);
     while(!yDone||!xDone){
-      moveYCoor(3);
+      moveYCoor(1);
       moveXCoor(3);
     }
-    extractPackage();
+    while(!iDone){
+      emptyPackage(5);
+    }
     resetVars();
-    while(!yDone||!xDone){
-      moveYCoor(4);
+    while(!xDone){
       moveXCoor(4);
     }
-    extractPackage();
-    resetVars();
-    while(!yDone||!xDone){
-      moveYCoor(5);
-      moveXCoor(5);
+    while(!iDone){
+      emptyPackage(6);
     }
-    extractPackage();
     resetVars();
-  }
-
-  moveIMotor(80, 0);
-  delay(3000);
-  while (!iDone) {
-    emptyPackage(2);
-    Serial.println(iLoc);
-  }
-  resetVars();
-  while (!iDone) {
-    emptyPackage(3);
-    Serial.println(iLoc);
-  }
-  resetVars();
-  while (!iDone) {
-    emptyPackage(4);
-    Serial.println(iLoc);
-  }
-  resetVars();
-  while (!iDone) {
-    emptyPackage(5);
-    Serial.println(iLoc);
-  }
-  resetVars();
-  while (!iDone) {
-    emptyPackage(6);
-    Serial.println(iLoc);
-  }
-  resetVars();
 }
 
 void loop() {
@@ -128,7 +96,8 @@ void loop() {
 }
 
 void moveXCoor(int coor) {
-  int trainSensor = readSensor(0, 200);
+  if(!xDone){
+  int trainSensor = readSensor(0, 150);
   
   speedX = 105;
   if (startXLoc == 0) {
@@ -163,8 +132,8 @@ void moveXCoor(int coor) {
     moveXMotor(95, dirX);
   } else if (trainSensor && onXLoc) { //Sensor Wit & op locatie
     if (onXWhiteC < 1) {
-      moveXMotor(255, !dirX);
-      delay(brakeSpeed*10);
+      moveXMotor(200, !dirX);
+      delay(brakeSpeed+10);
     }
     moveXMotor(0, dirX);
     onXWhite = true;
@@ -174,18 +143,18 @@ void moveXCoor(int coor) {
     if(split){
       moveXMotor(speedX+20, !dirX);
       splitC++;
-      if(splitC>200){
+      if(splitC>100){
         split=false;
       }
     }else{
       moveXMotor(0, !dirX);
       splitC++;
-      if(splitC>400){
+      if(splitC>250){
         splitC=0;
         split=true;
       }
     }
-  } else if (!trainSensor&&onXBlackC>200) { // Sensor zwart
+  } else if (!trainSensor&&onXBlackC>300) { // Sensor zwart
     onXWhite = false;
     moveXMotor(speedX, dirX);
   }else if (!trainSensor) { // Sensor zwart
@@ -195,10 +164,12 @@ void moveXCoor(int coor) {
     xDone = true;
     onXWhite = true;
   }
+  }
 }
 
 
 void moveYCoor(int coor) {
+  if(!yDone){
   int rackSensor = readSensor(4, 200);
 
   if (startYLoc == 0) {
@@ -234,37 +205,40 @@ void moveYCoor(int coor) {
     onYBlackC=0;
     onYWhiteC++;
   } else if (!rackSensor && onYLoc && !dirY) {
-    moveYMotor(100, !dirY);
-  } else if (!rackSensor&&onYBlackC>20) { // Sensor zwart
+    moveYMotor(120, !dirY);
+  } else if (!rackSensor&&onYBlackC>300) { // Sensor zwart
     onYWhite = false;
-    moveYMotor(speedY, dirX);
+    moveYMotor(120, dirY);
   }else if (!rackSensor) { // Sensor zwart
     onYBlackC++;
   }
   if (onYWhiteC == 500) {
     yDone = true;
   }
+  }
 }
 
 void extractPackage() {
-  moveIMotor(70, 0);
-  delay(1200);
+  moveIMotor(90, 0);
+  delay(2000);
   moveIMotor(0, 0);
 
   while (readSensor(4, 200)) {
     moveYMotor(100, 1);
-    delay(100);
   }
   moveYMotor(0, 1);
 
-  while (!readSensor(5, 300)) {
+  while (!readSensor(5, 400)) {
     moveIMotor(70, 1);
   }
   moveIMotor(0, 1);
 
   while (!readSensor(4, 200)) {
     moveYMotor(50, 0);
-    delay(100);
+  }
+  moveYMotor(0, 0);
+  if (!readSensor(4, 200)) {
+    moveYMotor(120, !dirY);
   }
   moveYMotor(0, 0);
 }
