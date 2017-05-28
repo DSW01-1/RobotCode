@@ -8,6 +8,14 @@ Communication::Communication()
 {
 }
 
+void Communication::resetCommandArray()
+{
+	for(int i = 0; i < maxArraySize; i++)
+	{
+		commandArray[i] = "";
+	}	
+}
+
 String Communication::getNextCommand()
 {
 	String commandToReturn = "";
@@ -68,7 +76,6 @@ void Communication::readInput()
 				if(commandIndex < maxArraySize - 1)
 				{
 					commandArray[commandIndex] = inputString;
-					
 					commandIndex++;					
 				}				
             }
@@ -78,6 +85,5 @@ void Communication::readInput()
             recvInProgress = true;
         }
     }
-	
 }
 
