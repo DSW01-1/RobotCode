@@ -11,6 +11,7 @@ boolean newData = false;
 int commandIndex = 0;
 const int maxArraySize = 10;
 String commandArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
+String extraInfoArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
 
 
 //OTHER VARIABLES
@@ -66,15 +67,19 @@ boolean splitI = true;
 ////////////////////////////////////////////////
 //END OF VARIABLES
 
-void setup() {
+void setup()
+{
   // Setup Motor Pins
-  for (int i = 4; i < 12; i++) {
+  for (int i = 4; i < 12; i++)
+  {
     pinMode(i, OUTPUT);
   }
+
   pinMode(A0, INPUT);
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
   Serial.begin(9600);
+
   resetRobot();
   int coor[5][2] = {
     {1, 5},
@@ -88,18 +93,52 @@ void setup() {
 
 }
 
-void loop() {
+void loop()
+{
+  //Step 1: Read the serial for new commands
+  readInput();
+
+  //Step 2: If there is a new command available, add it to the list
+  if (newData == true)
+  {
+    addCommand();
+  }
+
+  //Step 3: If the current task has been completed, reset
+  if (hasTaskEnded)
+  {
+    curCom = "";
+    isBusyWithTask = false;
+    hasTaskEnded = false;
+  }
+
+  //Step 4: If robot is not fulfilling a command, check if there is a new one available
+  if (isBusyWithTask == false)
+  {
+    CheckForCommand();
+  }
+
+  //Step 5: If there is a command available, proceed to fulfil it.
+  if (curCom != "")
+  {
+    isBusyWithTask = true;
+    ExecuteCommand();
+  }
 }
 
-void runPickandDrop(int coor[5][2], int drop[5]) {
-  for (int coorN = 0; coorN < 5; coorN++) {
+//Gets the products and drops them
+void runPickandDrop(int coor[5][2], int drop[5])
+{
+  for (int coorN = 0; coorN < 5; coorN++)
+  {
     int x = coor[coorN][0];
     int y = coor[coorN][1];
     moveCoor(x, y);
     delay(300);
     extractPackage();
   }
-  for (int dropN = 0; dropN < 5; dropN++) {
+  for (int dropN = 0; dropN < 5; dropN++)
+  {
     int x = drop[dropN];
     int box = dropN + 2;
     empty(x, box);
@@ -435,7 +474,35 @@ void ExecuteCommand()
   //Switch between commands
   if (curCom == "cmdSendTest")
   {
-    //DO SOMETHING
+    Serial.println("Pong!");
+  }
+  else if (curCom == "cmdDoCycle")
+  {
+    //Actually do the cycle
+  }
+  else if (curCom == "cmdMoveXAxis")
+  {
+
+  }
+  else if (curCom == "cmdMoveYAxis")
+  {
+
+  }
+  else if (curCom == "cmdMoveCoord")
+  {
+
+  }
+  else if (curCom == "cmdGetPackage")
+  {
+
+  }
+  else if (curCom == "cmdUnloadPackage")
+  {
+
+  }
+  else if (curCom == "cmdDumpPackage")
+  {
+
   }
   else
   {
@@ -460,6 +527,7 @@ void resetCommandArray()
   for (int i = 0; i < maxArraySize; i++)
   {
     commandArray[i] = "";
+    extraInfoArray[i] = "";
   }
 }
 
@@ -474,9 +542,11 @@ String getNextCommand()
     for (int i = 1; i < maxArraySize; i++)
     {
       commandArray[i - 1] = commandArray[i];
+      extraInfoArray[i - 1] = extraInfoArray[i];
     }
 
     commandArray[commandIndex] = "";
+    extraInfoArray[commandIndex] = "";
   }
   commandIndex--;
 
