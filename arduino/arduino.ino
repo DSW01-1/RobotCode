@@ -521,7 +521,7 @@ void moveIMotor(int speed, boolean dir)
 boolean readSensor(int pin, int value)
 {
   char A = A;
-  return (analogRead(A + pin) < value)
+  return (analogRead(A + pin) < value);
 }
 
 void moveCoor(int x, int y)
@@ -582,8 +582,11 @@ void resetRobot()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ExecuteCommand()
 {
+  String extraInfo = "";
+
   if (curCom.indexOf("[") > 0)
   {
+    extraInfo = curCom.substring(curCom.indexOf("[") + 1, curCom.indexOf("]") );
     curCom = curCom.substring(0, curCom.indexOf("["));
   }
 
@@ -596,18 +599,41 @@ void ExecuteCommand()
   else if (curCom == "cmdDoCycle")
   {
     //Actually do the cycle
+    Serial.println("Doing the cycle");
+    Serial.println("Extra info = " + extraInfo);
 
+    int index = 0;
+    int amountOfCoords = 0;
 
+    for (int i = 0; i < extraInfo.length(); i++)
+    {
+      if (extraInfo.charAt(i) == '@')
+      {
+        amountOfCoords++;
+      }
+    }
+
+    int coor[amountOfCoords][2];
+
+    Serial.println("Amount of coords: " + String(amountOfCoords + 1, DEC));
+
+    while (index < 25)
+    {
+      String coord = getValue(extraInfo, '@', index);
+
+      if (coord != "")
+      {
+        Serial.println("Coord at : " + coord.substring(0, 1) + "." + coord.substring(2, 3));
+
+        coor[index][0] = (coord.substring(0, 1)).toInt();
+        coor[index][1] = (coord.substring(2, 3)).toInt();
+      }
+      index++;
+    }
+
+    Serial.println("Starting the robot");
     /*
         resetRobot();
-        int coor[5][2] =
-        {
-          {1, 5},
-          {2, 2},
-          {3, 5},
-          {4, 2},
-          {5, 5},
-        };
         int drop[5] = {1, 2, 3, 4, 5 };
         runPickandDrop(coor, drop);
     */
@@ -644,6 +670,24 @@ void ExecuteCommand()
     Serial.println("Command not recognized");
     hasTaskEnded = true;
   }
+}
+
+String getValue(String data, char separator, int index)
+{
+  int found = 0;
+  int strIndex[] = { 0, -1 };
+  int maxIndex = data.length() - 1;
+
+  for (int i = 0; i <= maxIndex && found <= index; i++)
+  {
+    if (data.charAt(i) == separator || i == maxIndex)
+    {
+      found++;
+      strIndex[0] = strIndex[1] + 1;
+      strIndex[1] = (i == maxIndex) ? i + 1 : i;
+    }
+  }
+  return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
 void CheckForCommand()
