@@ -70,13 +70,7 @@ void setup() {
     {4, 2},
     {5, 5},
   };
-  int drop[5][2] = {
-    {1, 2},
-    {2, 3}, // X Item number
-    {3, 4},
-    {4, 5},
-    {5, 6}, //first item picked up
-  };
+  int drop[5] = {1,2,3,4,5 };
   runPickandDrop(coor, drop);
 
 }
@@ -84,7 +78,7 @@ void setup() {
 void loop() {
 }
 
-void runPickandDrop(int coor[5][2], int drop[5][2]) {
+void runPickandDrop(int coor[5][2], int drop[5]) {
     for (int coorN = 0; coorN < 5; coorN++) {
       int x = coor[coorN][0];
       int y = coor[coorN][1];
@@ -93,8 +87,8 @@ void runPickandDrop(int coor[5][2], int drop[5][2]) {
       extractPackage();
     }
   for (int dropN = 0; dropN < 5; dropN++) {
-    int x = drop[dropN][0];
-    int box = drop[dropN][1];
+    int x = drop[dropN];
+    int box = dropN+2;
     empty(x, box);
     delay(400);
   }
@@ -106,7 +100,7 @@ void moveXCoor(int coor) {
   } else {
     int trainSensor = readSensor(0, 150);
 
-    speedX = 100;
+    speedX = 95;
     if (startXLoc == 0) {
       startXLoc = 1;
       if (coor - xLoc > 0) {
