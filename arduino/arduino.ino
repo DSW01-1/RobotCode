@@ -47,8 +47,9 @@ int speedI;
 int onIWhiteC;
 int onIBlackC;
 
+
+
 void setup() {
-  //  while(true){};
   // Setup Motor Pins
   for (int i = 4; i < 12; i++) {
     pinMode(i, OUTPUT);
@@ -57,49 +58,50 @@ void setup() {
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
   Serial.begin(9600);
-  moveYMotor(100,0);
-  moveXMotor(110,0);
-  delay(3000);
-    
-    while(!yDone||!xDone){
-      moveYCoor(1);
-      moveXCoor(1);
-    }
-    extractPackage();
-    resetVars();
-    while(!yDone||!xDone){
-      moveYCoor(2);
-      moveXCoor(2);
-    }
-    extractPackage();
-    resetVars();
-    delay(2000);
-    while(!yDone||!xDone){
-      moveYCoor(1);
-      moveXCoor(3);
-    }
-    while(!iDone){
-      emptyPackage(5);
-    }
-    resetVars();
-    while(!xDone){
-      moveXCoor(4);
-    }
-    while(!iDone){
-      emptyPackage(6);
-    }
-    resetVars();
+  resetRobot();
+  int coor[5][2] = {
+  {1,1},
+  {2,2},
+  {3,3},
+  {4,4},
+  {5,5},
+  };
+  int drop[5][2] = {
+  {5,2},
+  {4,3},// X Item number
+  {3,4},
+  {2,5},
+  {1,6},//first item picked up
+  };
+  runPickandDrop(coor,drop);
+  
 }
 
 void loop() {
-  Serial.println(analogRead(A5));
+}
+
+void runPickandDrop(int coor[5][2],int drop[5][2]){
+  for(int coorN=0;coorN<5;coorN++){
+    int x=coor[coorN][0];
+    int y=coor[coorN][1];
+    moveCoor(x,y);
+    delay(300);
+    extractPackage();
+  }
+  for(int dropN=0;dropN<5;dropN++){
+    int x=drop[dropN][0];
+    int box=drop[dropN][1];
+    empty(x,box);
+    delay(300);
+  }
 }
 
 void moveXCoor(int coor) {
-  if(!xDone){
+  if(xDone||(startXLoc==0&&xLoc==coor)){xDone = true;
+  }else{
   int trainSensor = readSensor(0, 150);
   
-  speedX = 105;
+  speedX = 110;
   if (startXLoc == 0) {
     startXLoc = 1;
     if (coor - xLoc > 0) {
@@ -169,9 +171,9 @@ void moveXCoor(int coor) {
 
 
 void moveYCoor(int coor) {
-  if(!yDone){
+  if(yDone||(startYLoc==0&&yLoc==coor)){yDone = true;
+  }else{
   int rackSensor = readSensor(4, 200);
-
   if (startYLoc == 0) {
     startYLoc = yLoc;
     if (coor - startYLoc > 0) {
@@ -223,27 +225,23 @@ void extractPackage() {
   delay(2000);
   moveIMotor(0, 0);
 
-  while (readSensor(4, 200)) {
-    moveYMotor(100, 1);
+  while (readSensor(4, 300)) {
+    moveYMotor(120, 1);
   }
   moveYMotor(0, 1);
 
-  while (!readSensor(5, 400)) {
-    moveIMotor(70, 1);
+  while (!readSensor(5, 500)) {
+    moveIMotor(80, 1);
   }
   moveIMotor(0, 1);
 
-  while (!readSensor(4, 200)) {
+  while (!readSensor(4, 300)) {
     moveYMotor(50, 0);
-  }
-  moveYMotor(0, 0);
-  if (!readSensor(4, 200)) {
-    moveYMotor(120, !dirY);
   }
   moveYMotor(0, 0);
 }
 void emptyPackage(int coor) {
-  int insertSensor = readSensor(5, 600);
+  int insertSensor = readSensor(5, 400);
   speedI = 80;
   if (insertSensor && !onIWhite && !onILoc) { //Sensor Wit & Niet op wit & niet al op locatie
     onIWhite = true;
@@ -260,13 +258,13 @@ void emptyPackage(int coor) {
   } else if (insertSensor && onILoc) { //Sensor Wit & op locatie
     moveIMotor(0, 0);
     onIWhiteC++;
-  }else if (!insertSensor&&onIBlackC>20) { // Sensor zwart
+  }else if (!insertSensor&&onIBlackC>150) { // Sensor zwart
     onIWhite = false;
     moveIMotor(speedI, 1);
   }else if (!insertSensor) { // Sensor zwart
     onIBlackC++;
   }
-  if (onIWhiteC == 300) {
+  if (onIWhiteC == 500) {
     iDone = true;
   }
 }
@@ -294,6 +292,26 @@ boolean readSensor(int pin, int value) {
     return false;
   }
 }
+
+void moveCoor(int x,int y){
+  while(!yDone||!xDone){
+    moveYCoor(y);
+    moveXCoor(x);
+  }
+  resetVars();
+}
+
+void empty(int x, int box){
+  while(!yDone||!xDone){
+     moveYCoor(1);
+     moveXCoor(x);
+  }
+  while(!iDone){
+    emptyPackage(box);
+  }
+  resetVars();
+}
+
 void resetVars() {
   xDone = false;
   onXLoc = false;
@@ -311,5 +329,13 @@ void resetVars() {
   onILoc = false;
   onIWhiteC = 0;
   onIBlackC=0;
+}
+void resetRobot(){
+  extractPackage();
+  moveYMotor(100,0);
+  moveXMotor(110,0);
+  delay(5000);
+  moveYMotor(0,0);
+  moveXMotor(0,0);
 }
 
