@@ -1,7 +1,3 @@
-#include "Communication.h"
-
-Communication communication;
-
 int trainMotor = 5;
 int trainEnable = 4;
 
