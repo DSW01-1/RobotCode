@@ -1,3 +1,20 @@
+//COMMUNICATION VARIABLES
+///////////////////////////////////////////////////////////////////////
+boolean hasTaskEnded = false;
+boolean isBusyWithTask = false;
+String curCom = "";
+
+const byte numChars = 32;
+char receivedChars[numChars];
+boolean newData = false;
+
+int commandIndex = 0;
+const int maxArraySize = 10;
+String commandArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
+
+
+//OTHER VARIABLES
+///////////////////////////////////////////////////////////////////////
 int trainMotor = 5;
 int trainEnable = 4;
 
@@ -46,8 +63,8 @@ int onIWhiteC;
 int onIBlackC;
 int splitIC;
 boolean splitI = true;
-
-
+////////////////////////////////////////////////
+//END OF VARIABLES
 
 void setup() {
   // Setup Motor Pins
@@ -418,11 +435,7 @@ void ExecuteCommand()
   //Switch between commands
   if (curCom == "cmdSendTest")
   {
-    DoTaskTest();
-  }
-  else if (curCom == "cmdLol")
-  {
-    DoTaskLol();
+    //DO SOMETHING
   }
   else
   {
@@ -440,38 +453,6 @@ void CheckForCommand()
     Serial.println("looking for command");
     curCom = getNextCommand();
   }
-}
-
-void DoTaskTest()
-{
-  buttonState1 = digitalRead(pushbutton);
-
-  if (buttonState1 == HIGH)
-  {
-    if (previousbuttonState1 == LOW)
-    {
-      // THIS IS THE OPERATION I ONLY WANT TO RUN ONCE
-      Serial.println("All done with task Test!");
-      hasTaskEnded = true;
-    }
-  }
-  previousbuttonState1 = buttonState1;
-}
-
-void DoTaskLol()
-{
-  buttonState1 = digitalRead(pushbutton);
-
-  if (buttonState1 == HIGH)
-  {
-    if (previousbuttonState1 == LOW)
-    {
-      // THIS IS THE OPERATION I ONLY WANT TO RUN ONCE
-      Serial.println("All done with task LOL!");
-      hasTaskEnded = true;
-    }
-  }
-  previousbuttonState1 = buttonState1;
 }
 
 void resetCommandArray()
