@@ -70,7 +70,7 @@ void setup() {
     {4, 2},
     {5, 5},
   };
-  int drop[5] = {1,2,3,4,5 };
+  int drop[5] = {1, 2, 3, 4, 5 };
   runPickandDrop(coor, drop);
 
 }
@@ -79,16 +79,16 @@ void loop() {
 }
 
 void runPickandDrop(int coor[5][2], int drop[5]) {
-    for (int coorN = 0; coorN < 5; coorN++) {
-      int x = coor[coorN][0];
-      int y = coor[coorN][1];
-      moveCoor(x, y);
-      delay(300);
-      extractPackage();
-    }
+  for (int coorN = 0; coorN < 5; coorN++) {
+    int x = coor[coorN][0];
+    int y = coor[coorN][1];
+    moveCoor(x, y);
+    delay(300);
+    extractPackage();
+  }
   for (int dropN = 0; dropN < 5; dropN++) {
     int x = drop[dropN];
-    int box = dropN+2;
+    int box = dropN + 2;
     empty(x, box);
     delay(400);
   }
@@ -414,4 +414,161 @@ void resetRobot() {
   moveYMotor(0, 0);
   moveXMotor(0, 0);
 }
+
+//COMMUNICATION
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ExecuteCommand()
+{
+  //Switch between commands
+  if (curCom == "cmdSendTest")
+  {
+    DoTaskTest();
+  }
+  else if (curCom == "cmdLol")
+  {
+    DoTaskLol();
+  }
+  else
+  {
+    //If the given command is not in the list, reset
+    Serial.println("Command not recognized");
+    hasTaskEnded = true;
+  }
+}
+
+void CheckForCommand()
+{
+  //If not already working on something, switch to the next command in line
+  if (curCom == "" && commandArray[0] != "")
+  {
+    Serial.println("looking for command");
+    curCom = getNextCommand();
+  }
+}
+
+void DoTaskTest()
+{
+  buttonState1 = digitalRead(pushbutton);
+
+  if (buttonState1 == HIGH)
+  {
+    if (previousbuttonState1 == LOW)
+    {
+      // THIS IS THE OPERATION I ONLY WANT TO RUN ONCE
+      Serial.println("All done with task Test!");
+      hasTaskEnded = true;
+    }
+  }
+  previousbuttonState1 = buttonState1;
+}
+
+void DoTaskLol()
+{
+  buttonState1 = digitalRead(pushbutton);
+
+  if (buttonState1 == HIGH)
+  {
+    if (previousbuttonState1 == LOW)
+    {
+      // THIS IS THE OPERATION I ONLY WANT TO RUN ONCE
+      Serial.println("All done with task LOL!");
+      hasTaskEnded = true;
+    }
+  }
+  previousbuttonState1 = buttonState1;
+}
+
+void resetCommandArray()
+{
+  for (int i = 0; i < maxArraySize; i++)
+  {
+    commandArray[i] = "";
+  }
+}
+
+String getNextCommand()
+{
+  String commandToReturn = "";
+
+  if (commandIndex > 0)
+  {
+    commandToReturn = commandArray[0];
+
+    for (int i = 1; i < maxArraySize; i++)
+    {
+      commandArray[i - 1] = commandArray[i];
+    }
+
+    commandArray[commandIndex] = "";
+  }
+  commandIndex--;
+
+  return commandToReturn;
+}
+
+void readInput()
+{
+  static boolean recvInProgress = false;
+  static byte index = 0;
+  char startMarker = '<';
+  char endMarker = '>';
+  char rc;
+
+  while (Serial.available() > 0 && newData == false)
+  {
+    rc = Serial.read();
+
+    if (recvInProgress == true)
+    {
+      if (rc != endMarker)
+      {
+        receivedChars[index] = rc;
+        index++;
+        if (index >= numChars)
+        {
+          index = numChars - 1;
+        }
+      }
+      else
+      {
+        receivedChars[index] = '\0'; // terminate the string
+        recvInProgress = false;
+        index = 0;
+        newData = true;
+      }
+    }
+    else if (rc == startMarker)
+    {
+      recvInProgress = true;
+    }
+  }
+}
+
+void addCommand()
+{
+  String inputString = String(receivedChars);
+
+  if (commandIndex < maxArraySize - 1)
+  {
+    commandArray[commandIndex] = inputString;
+    commandIndex++;
+
+    Serial.print("new command added: ");
+    Serial.println(inputString);
+  }
+  newData = false;
+}
+
+void sendOutput(String command, String extraInfo)
+{
+  String output = "<" + command;
+
+  if (extraInfo != "")
+  {
+    output += "[" + extraInfo + "]";
+  }
+  output += ">";
+  Serial.println(output);
+}
+
 

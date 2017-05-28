@@ -1,3 +1,0 @@
-Communication	KEYWORD1
-readInput	KEYWORD2
-getNextCommand	KEYWORD2
