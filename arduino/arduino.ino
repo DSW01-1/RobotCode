@@ -4,7 +4,7 @@ boolean hasTaskEnded = false;
 boolean isBusyWithTask = false;
 String curCom = "";
 
-const byte numChars = 32;
+const byte numChars = 128;
 char receivedChars[numChars];
 boolean newData = false;
 
@@ -79,18 +79,6 @@ void setup()
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
   Serial.begin(9600);
-
-  resetRobot();
-  int coor[5][2] = {
-    {1, 5},
-    {2, 2},
-    {3, 5},
-    {4, 2},
-    {5, 5},
-  };
-  int drop[5] = {1, 2, 3, 4, 5 };
-  runPickandDrop(coor, drop);
-
 }
 
 void loop()
@@ -101,12 +89,14 @@ void loop()
   //Step 2: If there is a new command available, add it to the list
   if (newData == true)
   {
+    Serial.println("New command available");
     addCommand();
   }
 
   //Step 3: If the current task has been completed, reset
   if (hasTaskEnded)
   {
+    Serial.println("Task done, resetting");
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
@@ -147,19 +137,23 @@ void runPickandDrop(int coor[5][2], int drop[5])
 }
 
 void moveXCoor(int coor) {
-  if (xDone || (startXLoc == 0 && xLoc == coor) || !coor) {
+  if (xDone || (startXLoc == 0 && xLoc == coor) || !coor)
+  {
     xDone = true;
   } else {
     int trainSensor = readSensor(0, 150);
 
     speedX = 95;
-    if (startXLoc == 0) {
+    if (startXLoc == 0)
+    {
       startXLoc = 1;
-      if (coor - xLoc > 0) {
+      if (coor - xLoc > 0)
+      {
         dirX = true;
         moveXMotor(speedX, dirX);
         brakeSpeed = coor - xLoc;
-      } else {
+      } else
+      {
         dirX = false;
         moveXMotor(speedX, dirX);
         brakeSpeed = xLoc - coor;
@@ -167,24 +161,38 @@ void moveXCoor(int coor) {
     }
     //Zet richting correct
 
-    if (trainSensor && !onXWhite && !onXLoc) { //Sensor Wit & Niet op wit & niet al op locatie
+    if (trainSensor && !onXWhite && !onXLoc)
+    { //Sensor Wit & Niet op wit & niet al op locatie
       onXWhite = true;
       onXBlackC = 0;
-      if (dirX) {
+      if (dirX)
+      {
         xLoc++; //Tel op of af aan de hand van richting.
-      } else {
+      } else
+      {
         xLoc--;
       }
-      if (xLoc != coor) { // nog niet op locatie
+      if (xLoc != coor)
+      {
+        // nog niet op locatie
         moveXMotor(speedX, dirX);
-      } else if (xLoc == coor) { // op locatie
+      }
+      else if (xLoc == coor)
+      { // op locatie
         onXLoc = true;
         moveXMotor(0, !dirX);
       }
-    } else if (trainSensor && onXWhite && !onXLoc) { // Sensor wit & op wit & niet op locatie
+    }
+    else if (trainSensor && onXWhite && !onXLoc)
+    {
+      // Sensor wit & op wit & niet op locatie
       moveXMotor(95, dirX);
-    } else if (trainSensor && onXLoc) { //Sensor Wit & op locatie
-      if (onXWhiteC < 1) {
+    }
+    else if (trainSensor && onXLoc)
+    {
+      //Sensor Wit & op locatie
+      if (onXWhiteC < 1)
+      {
         moveXMotor(255, !dirX);
         delay(brakeSpeed * 2 + 10);
       }
@@ -192,28 +200,43 @@ void moveXCoor(int coor) {
       onXWhite = true;
       onXBlackC = 0;
       onXWhiteC++;
-    } else if (!trainSensor && onXLoc) { //Sensor zwart && op locatie
-      if (split) {
+    }
+    else if (!trainSensor && onXLoc)
+    {
+      //Sensor zwart && op locatie
+      if (split)
+      {
         moveXMotor(speedX + 20, !dirX);
         splitC++;
-        if (splitC > 150) {
+        if (splitC > 150)
+        {
           split = false;
         }
-      } else {
+      }
+      else
+      {
         moveXMotor(0, !dirX);
         splitC++;
-        if (splitC > 400) {
+        if (splitC > 400)
+        {
           splitC = 0;
           split = true;
         }
       }
-    } else if (!trainSensor && onXBlackC > 300) { // Sensor zwart
+    }
+    else if
+    (!trainSensor && onXBlackC > 300)
+    {
+      // Sensor zwart
       onXWhite = false;
       moveXMotor(speedX, dirX);
-    } else if (!trainSensor) { // Sensor zwart
+    }
+    else if (!trainSensor)
+    { // Sensor zwart
       onXBlackC++;
     }
-    if (onXWhiteC == 1000) {
+    if (onXWhiteC == 1000)
+    {
       xDone = true;
       onXWhite = true;
     }
@@ -221,10 +244,14 @@ void moveXCoor(int coor) {
 }
 
 
-void moveYCoor(int coor) {
-  if (yDone || (startYLoc == 0 && yLoc == coor) || !coor) {
+void moveYCoor(int coor)
+{
+  if (yDone || (startYLoc == 0 && yLoc == coor) || !coor)
+  {
     yDone = true;
-  } else {
+  }
+  else
+  {
     int rackSensor = readSensor(4, 200);
     if (startYLoc == 0) {
       startYLoc = yLoc;
@@ -237,210 +264,292 @@ void moveYCoor(int coor) {
       }
     } //Zet richting correct
 
-    if (rackSensor && !onYWhite && !onYLoc) { //Sensor Wit & Niet op wit & niet al op locatie
+    if (rackSensor && !onYWhite && !onYLoc)
+    {
+      //Sensor Wit & Niet op wit & niet al op locatie
       onYWhite = true;
       onYBlackC = 0;
-      if (dirY) {
-        yLoc++; //Tel op of af aan de hand van richting.
-      } else {
+      if (dirY)
+      {
+        //Tel op of af aan de hand van richting.
+        yLoc++;
+      }
+      else
+      {
         yLoc--;
       }
-      if (yLoc != coor) { // nog niet op locatie
+      if (yLoc != coor)
+      {
+        // nog niet op locatie
         moveYMotor(speedY, dirY);
-      } else if (yLoc == coor) { // op locatie
+      } else if (yLoc == coor)
+      {
+        // op locatie
         onYLoc = true;
         moveYMotor(0, dirY);
       }
-    } else if (rackSensor && onYWhite && !onYLoc) { // Sensor wit & op wit & niet op locatie
-      if (dirY) {
+    }
+    else if (rackSensor && onYWhite && !onYLoc)
+    {
+      // Sensor wit & op wit & niet op locatie
+      if (dirY)
+      {
         moveYMotor(speedY, dirY);
       }
       else {
-        if (splitY) {
+        if (splitY)
+        {
           moveYMotor(speedY, dirY);
           splitYC++;
-          if (splitYC > 500) {
+          if (splitYC > 500)
+          {
             splitY = false;
           }
-        } else {
+        }
+        else
+        {
           moveYMotor(0, dirY);
           splitYC++;
-          if (splitYC > 1200) {
+          if (splitYC > 1200)
+          {
             splitYC = 0;
             splitY = true;
           }
         }
       }
-    } else if (rackSensor && onYLoc) { //Sensor Wit & op locatie
+    }
+    else if (rackSensor && onYLoc)
+    {
+      //Sensor Wit & op locatie
       moveYMotor(0, !dirY);
       onYWhite = true;
       onYBlackC = 0;
       onYWhiteC++;
-    } else if (!rackSensor && onYLoc && !dirY) {
+    }
+    else if (!rackSensor && onYLoc && !dirY)
+    {
       moveYMotor(120, !dirY);
-    } else if (!rackSensor && onYBlackC > 300) { // Sensor zwart
+    }
+    else if (!rackSensor && onYBlackC > 300)
+    { // Sensor zwart
       onYWhite = false;
-      if (dirY) {
+      if (dirY)
+      {
         moveYMotor(speedY, dirY);
       }
-      else {
-        if (splitY) {
+      else
+      {
+        if (splitY)
+        {
           moveYMotor(speedY, dirY);
           splitYC++;
-          if (splitYC > 500) {
+          if (splitYC > 500)
+          {
             splitY = false;
           }
-        } else {
+        }
+        else
+        {
           moveYMotor(0, dirY);
           splitYC++;
-          if (splitYC > 1200) {
+          if (splitYC > 1200)
+          {
             splitYC = 0;
             splitY = true;
           }
         }
       }
-    } else if (!rackSensor) { // Sensor zwart
+    } else if (!rackSensor)
+    {
+      // Sensor zwart
       onYBlackC++;
     }
-    if (onYWhiteC == 500) {
+    if (onYWhiteC == 500)
+    {
       yDone = true;
     }
   }
 }
 
-void extractPackage() {
+void extractPackage()
+{
   moveIMotor(90, 0);
   delay(2000);
   moveIMotor(0, 0);
 
-  while (readSensor(4, 300)) {
+  while (readSensor(4, 300))
+  {
     moveYMotor(120, 1);
   }
   moveYMotor(0, 1);
 
-  while (!readSensor(5, 500)) {
+  while (!readSensor(5, 500))
+  {
     moveIMotor(80, 1);
   }
   moveIMotor(0, 1);
 
-  while (!readSensor(4, 300)) {
+  while (!readSensor(4, 300))
+  {
     moveYMotor(50, 0);
   }
   moveYMotor(0, 0);
 }
-void emptyPackage(int coor) {
+void emptyPackage(int coor)
+{
   int insertSensor = readSensor(5, 650);
   speedI = 90;
-  if (insertSensor && !onIWhite && !onILoc) { //Sensor Wit & Niet op wit & niet al op locatie
+  if (insertSensor && !onIWhite && !onILoc)
+  {
+    //Sensor Wit & Niet op wit & niet al op locatie
     onIWhite = true;
     onIBlackC = 0;
     iLoc++;
-    if (iLoc != coor) { // nog niet op locatie
-    } else if (iLoc == coor) { // op locatie
+
+    if (iLoc != coor)
+    {
+      // nog niet op locatie
+    }
+    else if (iLoc == coor)
+    {
+      // op locatie
       onILoc = true;
       moveIMotor(0, 0);
     }
-  } else if (insertSensor && onIWhite && !onILoc) { // Sensor wit & op wit & niet op locatie
-    if (splitI) {
+  }
+  else if (insertSensor && onIWhite && !onILoc)
+  {
+    // Sensor wit & op wit & niet op locatie
+    if (splitI)
+    {
       moveIMotor(speedI, 1);
       splitIC++;
-      if (splitIC > 200) {
+      if (splitIC > 200)
+      {
         splitI = false;
-      }
-    } else {
-      moveIMotor(0, 1);
-      splitIC++;
-      if (splitIC > 700) {
-        splitIC = 0;
-        splitI = true;
       }
     }
-  } else if (insertSensor && onILoc) { //Sensor Wit & op locatie
-    moveIMotor(0, 0);
-    onIWhiteC++;
-  } else if (!insertSensor && onIBlackC > 1000) { // Sensor zwart
-    onIWhite = false;
-    if (splitI) {
-      moveIMotor(speedI, 1);
-      splitIC++;
-      if (splitIC > 200) {
-        splitI = false;
-      }
-    } else {
+    else
+    {
       moveIMotor(0, 1);
       splitIC++;
-      if (splitIC > 700) {
-        splitIC = 0;
-        splitI = true;
-      }
-    }
-  } else if (!insertSensor) { // Sensor zwart
-    onIBlackC++;
-    if (splitI) {
-      moveIMotor(speedI, 1);
-      splitIC++;
-      if (splitIC > 200) {
-        splitI = false;
-      }
-    } else {
-      moveIMotor(0, 1);
-      splitIC++;
-      if (splitIC > 700) {
+      if (splitIC > 700)
+      {
         splitIC = 0;
         splitI = true;
       }
     }
   }
-  if (onIWhiteC == 500) {
+  else if (insertSensor && onILoc)
+  {
+    //Sensor Wit & op locatie
+    moveIMotor(0, 0);
+    onIWhiteC++;
+  }
+  else if (!insertSensor && onIBlackC > 1000)
+  {
+    // Sensor zwart
+    onIWhite = false;
+    if (splitI)
+    {
+      moveIMotor(speedI, 1);
+      splitIC++;
+      if (splitIC > 200)
+      {
+        splitI = false;
+      }
+    }
+    else
+    {
+      moveIMotor(0, 1);
+      splitIC++;
+      if (splitIC > 700)
+      {
+        splitIC = 0;
+        splitI = true;
+      }
+    }
+  }
+  else if (!insertSensor)
+  {
+    // Sensor zwart
+    onIBlackC++;
+    if (splitI) {
+      moveIMotor(speedI, 1);
+      splitIC++;
+      if (splitIC > 200)
+      {
+        splitI = false;
+      }
+    }
+    else
+    {
+      moveIMotor(0, 1);
+      splitIC++;
+      if (splitIC > 700)
+      {
+        splitIC = 0;
+        splitI = true;
+      }
+    }
+  }
+  if (onIWhiteC == 500)
+  {
     iDone = true;
     splitI = true;
   }
 }
 
-void moveXMotor(int speed, boolean dir) {
+void moveXMotor(int speed, boolean dir)
+{
   analogWrite(trainMotor, speed);
   digitalWrite(trainEnable, dir);
 }
 
-void moveYMotor(int speed, boolean dir) {
+void moveYMotor(int speed, boolean dir)
+{
   analogWrite(rackMotor, speed);
   digitalWrite(rackEnable, dir);
 }
 
-void moveIMotor(int speed, boolean dir) {
+void moveIMotor(int speed, boolean dir)
+{
   analogWrite(insertMotor, speed);
   digitalWrite(insertEnable, dir);
 }
 
-boolean readSensor(int pin, int value) {
+boolean readSensor(int pin, int value)
+{
   char A = A;
-  if (analogRead(A + pin) < value) {
-    return true;
-  } else {
-    return false;
-  }
+  return (analogRead(A + pin) < value)
 }
 
-void moveCoor(int x, int y) {
-  while (!yDone || !xDone) {
+void moveCoor(int x, int y)
+{
+  while (!yDone || !xDone)
+  {
     moveYCoor(y);
     moveXCoor(x);
   }
   resetVars();
 }
 
-void empty(int x, int box) {
-  while (!yDone || !xDone) {
+void empty(int x, int box)
+{
+  while (!yDone || !xDone)
+  {
     moveYCoor(1);
     moveXCoor(x);
   }
-  while (!iDone) {
+  while (!iDone)
+  {
     emptyPackage(box);
   }
   resetVars();
 }
 
-void resetVars() {
+void resetVars()
+{
   xDone = false;
   onXLoc = false;
   onXWhiteC = 0;
@@ -458,7 +567,9 @@ void resetVars() {
   onIWhiteC = 0;
   onIBlackC = 0;
 }
-void resetRobot() {
+
+void resetRobot()
+{
   extractPackage();
   moveYMotor(100, 0);
   moveXMotor(110, 0);
@@ -471,38 +582,61 @@ void resetRobot() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ExecuteCommand()
 {
+  if (curCom.indexOf("[") > 0)
+  {
+    curCom = curCom.substring(0, curCom.indexOf("["));
+  }
+
   //Switch between commands
   if (curCom == "cmdSendTest")
   {
     Serial.println("Pong!");
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdDoCycle")
   {
     //Actually do the cycle
+
+
+    /*
+        resetRobot();
+        int coor[5][2] =
+        {
+          {1, 5},
+          {2, 2},
+          {3, 5},
+          {4, 2},
+          {5, 5},
+        };
+        int drop[5] = {1, 2, 3, 4, 5 };
+        runPickandDrop(coor, drop);
+    */
+
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdMoveXAxis")
   {
-
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdMoveYAxis")
   {
-
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdMoveCoord")
   {
-
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdGetPackage")
   {
-
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdUnloadPackage")
   {
-
+    hasTaskEnded = true;
   }
   else if (curCom == "cmdDumpPackage")
   {
-
+    hasTaskEnded = true;
   }
   else
   {
@@ -582,6 +716,7 @@ void readInput()
         recvInProgress = false;
         index = 0;
         newData = true;
+        Serial.println("Received Data");
       }
     }
     else if (rc == startMarker)
