@@ -12,6 +12,7 @@ int commandIndex = 0;
 const int maxArraySize = 10;
 String commandArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
 String extraInfoArray[maxArraySize] = {"", "", "", "", "", "", "", "", "", ""};
+boolean robotDidDone = false;
 
 
 //OTHER VARIABLES
@@ -100,6 +101,7 @@ void loop()
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
+    robotDidDone = false;
   }
 
   //Step 4: If robot is not fulfilling a command, check if there is a new one available
@@ -117,9 +119,10 @@ void loop()
 }
 
 //Gets the products and drops them
-void runPickandDrop(int coor[5][2], int drop[5])
+void runPickandDrop(int coor[][2], int drop[5], int amountOfCoords)
 {
-  for (int coorN = 0; coorN < 5; coorN++)
+
+  for (int coorN = 0; coorN < amountOfCoords; coorN++)
   {
     int x = coor[coorN][0];
     int y = coor[coorN][1];
@@ -127,13 +130,17 @@ void runPickandDrop(int coor[5][2], int drop[5])
     delay(300);
     extractPackage();
   }
-  for (int dropN = 0; dropN < 5; dropN++)
+
+  for (int dropN = 0; dropN < amountOfCoords; dropN++)
   {
     int x = drop[dropN];
     int box = dropN + 2;
     empty(x, box);
     delay(400);
   }
+
+  robotDidDone = true;
+
 }
 
 void moveXCoor(int coor) {
@@ -598,47 +605,51 @@ void ExecuteCommand()
   }
   else if (curCom == "cmdDoCycle")
   {
-    //Actually do the cycle
-    Serial.println("Doing the cycle");
-    Serial.println("Extra info = " + extraInfo);
-
-    int index = 0;
-    int amountOfCoords = 0;
-
-    for (int i = 0; i < extraInfo.length(); i++)
+    if (hasTaskEnded == false && robotDidDone == false)
     {
-      if (extraInfo.charAt(i) == '@')
+      //Actually do the cycle
+      Serial.println("Doing the cycle");
+      Serial.println("Extra info = " + extraInfo);
+
+      int amountOfCoords = 0;
+
+      for (int i = 0; i < extraInfo.length(); i++)
       {
-        amountOfCoords++;
+        if (extraInfo.charAt(i) == '@')
+        {
+          amountOfCoords++;
+        }
       }
+
+      int coor[amountOfCoords][2];
+
+      Serial.println("Amount of coords: " + String(amountOfCoords + 1, DEC));
+
+      for (int i = 0; i < amountOfCoords; i++)
+      {
+        String coord = getValue(extraInfo, '@', i);
+
+        if (coord != "")
+        {
+          Serial.println("Coord at : " + coord.substring(0, 1) + "." + coord.substring(2, 3));
+
+          coor[i][0] = (coord.substring(0, 1)).toInt();
+          coor[i][1] = (coord.substring(2, 3)).toInt();
+        }
+      }
+
+      Serial.println("Starting the robot");
+
+      //resetRobot();
+      int drop[1] = {1};
+      runPickandDrop(coor, drop, amountOfCoords);
+
     }
 
-    int coor[amountOfCoords][2];
-
-    Serial.println("Amount of coords: " + String(amountOfCoords + 1, DEC));
-
-    while (index < 25)
+    if (robotDidDone == true)
     {
-      String coord = getValue(extraInfo, '@', index);
-
-      if (coord != "")
-      {
-        Serial.println("Coord at : " + coord.substring(0, 1) + "." + coord.substring(2, 3));
-
-        coor[index][0] = (coord.substring(0, 1)).toInt();
-        coor[index][1] = (coord.substring(2, 3)).toInt();
-      }
-      index++;
+      hasTaskEnded = true;
     }
-
-    Serial.println("Starting the robot");
-    /*
-        resetRobot();
-        int drop[5] = {1, 2, 3, 4, 5 };
-        runPickandDrop(coor, drop);
-    */
-
-    hasTaskEnded = true;
   }
   else if (curCom == "cmdMoveXAxis")
   {
