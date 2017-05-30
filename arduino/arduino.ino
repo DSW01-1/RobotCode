@@ -565,8 +565,8 @@ void moveCoor(int x, int y)
     moveXCoor(x);
   }
 
-   Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
-  
+  Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+
   resetVars();
 }
 
@@ -581,6 +581,9 @@ void empty(int x, int box)
   {
     emptyPackage(box);
   }
+
+  Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+
   resetVars();
 }
 
