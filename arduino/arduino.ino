@@ -101,6 +101,7 @@ void loop()
     moveCoor(1, 1);
     Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
     extractPackage();
+    iLoc=0;
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
