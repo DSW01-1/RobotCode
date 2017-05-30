@@ -99,9 +99,9 @@ void loop()
   {
     Serial.println("Task done, resetting");
     moveCoor(1, 1);
-    Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+    Serial.println("<cmdMoveRobot[" + String(xLoc - 1 , DEC) + "!" + String(yLoc, DEC) + "]>");
     extractPackage();
-    iLoc=0;
+    iLoc = 0;
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
@@ -566,7 +566,7 @@ void moveCoor(int x, int y)
     moveXCoor(x);
   }
 
-  Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+  Serial.println("<cmdMoveRobot[" + String(xLoc - 1 , DEC) + "!" + String(yLoc, DEC) + "]>");
 
   resetVars();
 }
@@ -583,7 +583,7 @@ void empty(int x, int box)
     emptyPackage(box);
   }
 
-  Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+  Serial.println("<cmdMoveRobot[" + String(xLoc - 1 , DEC) + "!" + String(yLoc, DEC) + "]>");
 
   resetVars();
 }
@@ -691,7 +691,7 @@ void ExecuteCommand()
   }
   else if (curCom == "cmdGetLocation")
   {
-    Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+    Serial.println("<cmdMoveRobot[" + String(xLoc - 1 , DEC) + "!" + String(yLoc, DEC) + "]>");
     hasTaskEnded = true;
   }
   else
