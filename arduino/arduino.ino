@@ -98,7 +98,8 @@ void loop()
   if (hasTaskEnded)
   {
     Serial.println("Task done, resetting");
-    moveCoor(1,1);
+    moveCoor(1, 1);
+    Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
     extractPackage();
     curCom = "";
     isBusyWithTask = false;
@@ -133,8 +134,8 @@ void runPickandDrop(int coor[][2], int drop[], int amountOfCoords)
 
     int x = coor[coorN][0];
     int y = coor[coorN][1];
-    
-    moveCoor(x+1, y);
+
+    moveCoor(x + 1, y);
     delay(300);
 
     if (packageCycleIndex < amountOfCoords)
@@ -149,7 +150,7 @@ void runPickandDrop(int coor[][2], int drop[], int amountOfCoords)
   {
     int x = drop[dropN];
     int box = (8 - amountOfCoords) + dropN;
-    empty(x+6, box);
+    empty(x + 6, box);
     delay(400);
   }
 
@@ -563,6 +564,9 @@ void moveCoor(int x, int y)
     moveYCoor(y);
     moveXCoor(x);
   }
+
+   Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
+  
   resetVars();
 }
 
@@ -679,6 +683,11 @@ void ExecuteCommand()
   }
   else if (curCom == "cmdDumpPackage")
   {
+    hasTaskEnded = true;
+  }
+  else if (curCom == "cmdGetLocation")
+  {
+    Serial.println("cmdMoveRobot[" + String(xLoc , DEC) + "!" + String(yLoc, DEC) + "]");
     hasTaskEnded = true;
   }
   else
