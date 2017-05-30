@@ -615,13 +615,26 @@ void ExecuteCommand()
 {
   String extraInfo1 = "";
   String extraInfo2 = "";
+  int amountOfInfo = 0;
 
-  if (curCom.indexOf("[") > 0)
+  for (int i = 0; i < sizeof(curCom); i++)
+  {
+    if (curCom.charAt(i))
+    {
+      amountOfInfo++;
+    }
+  }
+
+  if (amountOfInfo > 0)
   {
     extraInfo1 = curCom.substring(curCom.indexOf("[") + 1, curCom.indexOf("]") );
-    extraInfo2 = curCom.substring(curCom.lastIndexOf("[") + 1, curCom.lastIndexOf("]"));
-    curCom = curCom.substring(0, curCom.indexOf("["));
+
+    if (amountOfInfo > 1)
+    {
+      extraInfo2 = curCom.substring(curCom.indexOf("]") + 2, curCom.lastIndexOf("]"));
+    }
   }
+  curCom = curCom.substring(0, curCom.indexOf("["));
 
   //Switch between commands
   if (curCom == "cmdSendTest")
@@ -633,64 +646,7 @@ void ExecuteCommand()
   {
     if (hasTaskEnded == false && robotDidDone == false)
     {
-      //Actually do the cycle
-      Serial.println("Doing the cycle");
-      Serial.println("Extra info1 = " + extraInfo1);
-      Serial.println("Extra info2 = " + extraInfo2);
-
-      int amountOfCoords = 0;
-      int amountOfBoxes = 1;
-
-      for (int i = 0; i < extraInfo1.length(); i++)
-      {
-        if (extraInfo1.charAt(i) == '@')
-        {
-          amountOfCoords++;
-        }
-      }
-
-      for (int i = 0; i < extraInfo2.length(); i++)
-      {
-        if (extraInfo2.charAt(i) == '!')
-        {
-          amountOfBoxes++;
-        }
-      }
-
-      amountOfCoords += 1;
-
-      int coor[amountOfCoords][2];
-      int drop[amountOfBoxes];
-      Serial.println("Amount of boxes: " + String(amountOfBoxes, DEC));
-
-      Serial.println("Amount of coords: " + String(amountOfCoords, DEC));
-
-      for (int i = 0; i < amountOfCoords; i++)
-      {
-        String coord = getValue(extraInfo1, '@', i);
-        if (coord != "")
-        {
-          Serial.println("Coord at : " + coord.substring(0, 1) + "." + coord.substring(2, 3));
-
-          coor[i][0] = (coord.substring(0, 1)).toInt();
-          coor[i][1] = (coord.substring(2, 3)).toInt();
-        }
-      }
-
-      for (int i = 0; i < amountOfBoxes; i++)
-      {
-        String box = getValue(extraInfo2, '!', i);
-        if (box != "")
-        {
-          //        drop[i] = box[0];
-          Serial.println("box at : " + (box.substring(0, 1)));
-          drop[i] =  (box.substring(0, 1)).toInt();
-        }
-      }
-
-      Serial.println("Starting the robot");
-      runPickandDrop(coor, drop, amountOfCoords + 1);
-
+      DoCycle(curCom, extraInfo1, extraInfo2);
     }
 
     if (robotDidDone == true)
@@ -857,4 +813,64 @@ void sendOutput(String command, String extraInfo)
   Serial.println(output);
 }
 
+void DoCycle(String curCom, String extraInfo1, String extraInfo2)
+{
+  //Actually do the cycle
+  Serial.println("Doing the cycle");
+  Serial.println("Extra info1 = " + extraInfo1);
+  Serial.println("Extra info2 = " + extraInfo2);
+
+  int amountOfCoords = 0;
+  int amountOfBoxes = 1;
+
+  for (int i = 0; i < extraInfo1.length(); i++)
+  {
+    if (extraInfo1.charAt(i) == '@')
+    {
+      amountOfCoords++;
+    }
+  }
+
+  for (int i = 0; i < extraInfo2.length(); i++)
+  {
+    if (extraInfo2.charAt(i) == '!')
+    {
+      amountOfBoxes++;
+    }
+  }
+
+  amountOfCoords += 1;
+
+  int coor[amountOfCoords][2];
+  int drop[amountOfBoxes];
+  Serial.println("Amount of boxes: " + String(amountOfBoxes, DEC));
+
+  Serial.println("Amount of coords: " + String(amountOfCoords, DEC));
+
+  for (int i = 0; i < amountOfCoords; i++)
+  {
+    String coord = getValue(extraInfo1, '@', i);
+    if (coord != "")
+    {
+      Serial.println("Coord at : " + coord.substring(0, 1) + "." + coord.substring(2, 3));
+
+      coor[i][0] = (coord.substring(0, 1)).toInt();
+      coor[i][1] = (coord.substring(2, 3)).toInt();
+    }
+  }
+
+  for (int i = 0; i < amountOfBoxes; i++)
+  {
+    String box = getValue(extraInfo2, '!', i);
+    if (box != "")
+    {
+      //        drop[i] = box[0];
+      Serial.println("box at : " + (box.substring(0, 1)));
+      drop[i] =  (box.substring(0, 1)).toInt();
+    }
+  }
+
+  Serial.println("Starting the robot");
+  runPickandDrop(coor, drop, amountOfCoords + 1);
+}
 
