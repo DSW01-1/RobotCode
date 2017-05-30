@@ -149,7 +149,7 @@ void runPickandDrop(int coor[][2], int drop[], int amountOfCoords)
     Serial.print("Dropping packages at: ");
     int x = drop[dropN];
     Serial.println(x);
-    int box = (8-amountOfCoords)+dropN;
+    int box = (8 - amountOfCoords) + dropN;
     Serial.print("Dropping item: ");
     Serial.println(box);
     empty(x, box);
@@ -607,13 +607,26 @@ void ExecuteCommand()
 {
   String extraInfo1 = "";
   String extraInfo2 = "";
+  int amountOfInfo = 0;
 
-  if (curCom.indexOf("[") > 0)
+  for (int i = 0; i < sizeof(curCom); i++)
+  {
+    if (curCom.charAt(i))
+    {
+      amountOfInfo++;
+    }
+  }
+
+  if (amountOfInfo > 0)
   {
     extraInfo1 = curCom.substring(curCom.indexOf("[") + 1, curCom.indexOf("]") );
-    extraInfo2 = curCom.substring(curCom.lastIndexOf("[") + 1, curCom.lastIndexOf("]"));
-    curCom = curCom.substring(0, curCom.indexOf("["));
+
+    if (amountOfInfo > 1)
+    {
+      extraInfo2 = curCom.substring(curCom.indexOf("]") + 2, curCom.lastIndexOf("]"));
+    }
   }
+  curCom = curCom.substring(0, curCom.indexOf("["));
 
   //Switch between commands
   if (curCom == "cmdSendTest")
