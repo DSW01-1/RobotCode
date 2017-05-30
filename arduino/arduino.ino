@@ -98,7 +98,8 @@ void loop()
   if (hasTaskEnded)
   {
     Serial.println("Task done, resetting");
-    resetRobot();
+    moveCoor(1,1);
+    extractPackage();
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
@@ -133,7 +134,7 @@ void runPickandDrop(int coor[][2], int drop[], int amountOfCoords)
     int x = coor[coorN][0];
     int y = coor[coorN][1];
     
-    moveCoor(x, y);
+    moveCoor(x+1, y);
     delay(300);
 
     if (packageCycleIndex < amountOfCoords)
@@ -148,7 +149,7 @@ void runPickandDrop(int coor[][2], int drop[], int amountOfCoords)
   {
     int x = drop[dropN];
     int box = (8 - amountOfCoords) + dropN;
-    empty(x, box);
+    empty(x+6, box);
     delay(400);
   }
 
