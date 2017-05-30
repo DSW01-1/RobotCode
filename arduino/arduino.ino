@@ -100,6 +100,7 @@ void loop()
     Serial.println("Task done, resetting");
     moveCoor(1,1);
     extractPackage();
+    iLoc=0;
     curCom = "";
     isBusyWithTask = false;
     hasTaskEnded = false;
