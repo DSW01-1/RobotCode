@@ -277,7 +277,7 @@ void moveYCoor(int coor)
     if (startYLoc == 0) {
       startYLoc = yLoc;
       if (coor - startYLoc > 0) {
-        speedY = 120;
+        speedY = 130;
         dirY = true;
       } else {
         dirY = false;
